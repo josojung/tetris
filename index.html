@@ -283,10 +283,11 @@
     .board-wrap{padding:6px;width:-moz-fit-content;width:fit-content;max-width:100%;margin:0 auto;}
     .overlay{inset:6px;padding:16px;}
     .overlay h2{font-size:19px;}
+    /* starting guess for first paint; fitBoard() measures the real leftover space */
     #board{
       width:auto;
-      height:min(50vh, 420px);
-      height:min(50dvh, 420px);
+      height:min(46vh, 420px);
+      height:min(46dvh, 420px);
     }
 
     .rail{flex-direction:row;flex-wrap:wrap;gap:8px;}
@@ -305,7 +306,7 @@
   }
 
   @media (max-width:640px) and (max-height:720px){
-    #board{height:min(43vh, 360px); height:min(43dvh, 360px);}
+    #board{height:min(40vh, 360px); height:min(40dvh, 360px);}
     .pad button{padding:12px 0;}
   }
 
@@ -777,6 +778,27 @@
     }
   }
 
+  /* On phones the board takes whatever vertical space the rest of the UI leaves,
+     so the pad never falls off the bottom of the screen. */
+  var cabinet = document.querySelector(".cabinet");
+
+  function fitBoard(){
+    if(!narrow.matches){
+      boardCv.style.height = "";
+      return;
+    }
+    var cs = window.getComputedStyle(document.body);
+    var avail = window.innerHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var used = cabinet.getBoundingClientRect().height - boardCv.getBoundingClientRect().height;
+    var h = Math.round(Math.max(260, Math.min(440, avail - used - 2)));
+    boardCv.style.height = h + "px";
+  }
+
+  function relayout(){
+    fitBoard();
+    draw();
+  }
+
   function draw(){
     drawBoard();
     if(!S) return;
@@ -903,15 +925,17 @@
   pauseBtn.addEventListener("click", togglePause);
   resetBtn.addEventListener("click", restart);
 
-  window.addEventListener("resize", draw);
-  window.addEventListener("orientationchange", function(){ setTimeout(draw, 250); });
-  if(narrow.addEventListener) narrow.addEventListener("change", draw);
+  window.addEventListener("resize", relayout);
+  window.addEventListener("orientationchange", function(){ setTimeout(relayout, 250); });
+  if(narrow.addEventListener) narrow.addEventListener("change", relayout);
   document.addEventListener("visibilitychange", function(){
     if(document.hidden && S && S.mode === "playing") togglePause();
   });
 
   newGame();
-  draw();
+  relayout();
+  /* webfonts change the header height, so measure again once they land */
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
   requestAnimationFrame(tick);
 })();
 </script>
