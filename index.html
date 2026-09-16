@@ -1,8 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>테트리스 캐비닛</title>
+<meta name="description" content="브라우저에서 바로 즐기는 클래식 테트리스. 홀드, 고스트 피스, 7-백 랜덤 생성기. 설치 없이 폰에서도 플레이할 수 있습니다.">
+<meta name="theme-color" content="#13172a">
+<meta name="color-scheme" content="dark">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="테트리스 캐비닛">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://josojung.github.io/tetris/">
+<meta property="og:title" content="테트리스 캐비닛">
+<meta property="og:description" content="브라우저에서 바로 즐기는 클래식 테트리스. 설치 없이 폰에서도 플레이할 수 있습니다.">
+<meta property="og:image" content="https://josojung.github.io/tetris/og-image.png?v=1">
+<meta property="og:image:secure_url" content="https://josojung.github.io/tetris/og-image.png?v=1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="어두운 배경 위에 놓인 테트리스 블록과 제목">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="테트리스 캐비닛">
+<meta name="twitter:description" content="브라우저에서 바로 즐기는 클래식 테트리스. 설치 없이 폰에서도 플레이할 수 있습니다.">
+<meta name="twitter:image" content="https://josojung.github.io/tetris/og-image.png?v=1">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="테트리스">
+<link rel="canonical" href="https://josojung.github.io/tetris/">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="%2313172a"/><rect x="11" y="3" width="9" height="9" fill="%23ac7ce6"/><rect x="2" y="12" width="9" height="9" fill="%23f0a830"/><rect x="11" y="12" width="9" height="9" fill="%23f0a830"/><rect x="20" y="12" width="9" height="9" fill="%23f0a830"/></svg>'>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
+  *,*::before,*::after{box-sizing:border-box;}
   :root{
     --ink:#13172a;
     --panel:#1c2138;
@@ -15,21 +50,28 @@
     --display:'Chakra Petch','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;
     --mono:'IBM Plex Mono','Malgun Gothic',ui-monospace,monospace;
   }
-  html,body{height:100%;}
+  html{height:100%;-webkit-text-size-adjust:100%;}
   body{
     margin:0;
+    min-height:100%;
     background:
       radial-gradient(120% 80% at 50% 0%, #1d2340 0%, var(--ink) 60%),
       var(--ink);
     color:var(--text);
     font-family:var(--display);
+    font-size:14px;
     display:flex;
     align-items:center;
     justify-content:center;
     padding-inline:16px;
-    padding-block:20px;
-    box-sizing:border-box;
+    padding-block:max(18px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-bottom, 0px));
+    overscroll-behavior:none;
+    -webkit-user-select:none;
+    user-select:none;
   }
+  img{max-width:100%;}
+  [hidden]{display:none!important;}
+
   .cabinet{
     width:100%;
     max-width:620px;
@@ -80,6 +122,7 @@
     max-width:100%;
     aspect-ratio:1/2;
     border-radius:2px;
+    touch-action:none;
   }
 
   .overlay{
@@ -94,7 +137,6 @@
     background:rgba(19,23,42,.92);
     border-radius:2px;
     padding:20px;
-    box-sizing:border-box;
   }
   .overlay h2{
     margin:0;
@@ -126,6 +168,7 @@
     border:1px solid var(--line);
     border-radius:4px;
     padding:10px;
+    min-width:0;
   }
   .box h3{
     margin:0 0 8px;
@@ -149,6 +192,7 @@
     align-items:baseline;
     justify-content:space-between;
     gap:8px;
+    min-width:0;
   }
   .stat dt{
     font-family:var(--mono);
@@ -188,8 +232,9 @@
     background:var(--accent);
     border:0;
     border-radius:3px;
-    padding:9px 16px;
+    padding:11px 18px;
     cursor:pointer;
+    touch-action:manipulation;
   }
   .btn.ghost{
     background:transparent;
@@ -209,32 +254,65 @@
   }
   .pad button{
     font-family:var(--mono);
-    font-size:13px;
+    font-size:15px;
     color:var(--text);
     background:var(--panel-2);
     border:1px solid var(--line);
     border-radius:3px;
-    padding:12px 0;
+    padding:15px 0;
     cursor:pointer;
     touch-action:manipulation;
     -webkit-user-select:none;
     user-select:none;
+    -webkit-tap-highlight-color:transparent;
   }
   .pad button:active{background:var(--accent-dim);}
 
   .topbar{display:flex;gap:8px;}
 
   @media (min-width:641px){ .pad{display:none;} }
+
   @media (max-width:640px){
-    .deck{grid-template-columns:1fr;}
-    .board-wrap{max-width:330px;margin:0 auto;width:100%;box-sizing:border-box;}
-    .rail{flex-direction:row;flex-wrap:wrap;}
-    .rail .box{flex:1 1 130px;}
-    .rail .keys-box{display:none;}
+    body{padding-inline:12px;}
+    .cabinet{gap:10px;}
+    .masthead{padding-bottom:8px;}
+    .masthead h1{font-size:16px;}
+    .masthead .sub{font-size:10px;}
+
+    .deck{grid-template-columns:1fr;gap:10px;}
+    .board-wrap{padding:6px;width:-moz-fit-content;width:fit-content;max-width:100%;margin:0 auto;}
+    .overlay{inset:6px;padding:16px;}
+    .overlay h2{font-size:19px;}
+    #board{
+      width:auto;
+      height:min(50vh, 420px);
+      height:min(50dvh, 420px);
+    }
+
+    .rail{flex-direction:row;flex-wrap:wrap;gap:8px;}
+    .rail .box{padding:7px;}
+    .rail .box h3{margin-bottom:5px;font-size:9px;}
+    .hold-box{flex:0 0 auto;width:84px;}
+    .next-box{flex:1 1 0;}
+    .status-box{flex:1 1 100%;}
+    .keys-box{display:none;}
+    .status-box .stats{flex-direction:row;justify-content:space-between;gap:10px;}
+    .status-box .stat{flex-direction:column;align-items:flex-start;gap:1px;}
+    .status-box .stat dd{font-size:16px;}
+    .status-box .stat.score dd{font-size:18px;}
     .topbar{flex:1 1 100%;}
+    .btn{padding:10px 14px;}
   }
+
+  @media (max-width:640px) and (max-height:720px){
+    #board{height:min(43vh, 360px); height:min(43dvh, 360px);}
+    .pad button{padding:12px 0;}
+  }
+
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 </style>
+</head>
+<body>
 
 <div class="cabinet">
   <header class="masthead">
@@ -247,22 +325,22 @@
       <canvas id="board" tabindex="0" aria-label="테트리스 게임 보드"></canvas>
       <div class="overlay" id="overlay">
         <h2 id="ovTitle">준비 완료</h2>
-        <p id="ovBody">스페이스바 또는 시작 버튼을 누르세요</p>
+        <p id="ovBody">시작을 누르면 바로 시작됩니다</p>
         <div class="final" id="ovFinal" hidden></div>
         <button class="btn" id="startBtn" type="button">시작</button>
       </div>
     </div>
 
     <div class="rail">
-      <section class="box">
+      <section class="box hold-box">
         <h3>Hold</h3>
-        <canvas id="hold" width="140" height="80"></canvas>
+        <canvas id="hold"></canvas>
       </section>
-      <section class="box">
+      <section class="box next-box">
         <h3>Next</h3>
-        <canvas id="next" width="140" height="210"></canvas>
+        <canvas id="next"></canvas>
       </section>
-      <section class="box">
+      <section class="box status-box">
         <h3>Status</h3>
         <dl class="stats">
           <div class="stat score"><dt>Score</dt><dd id="score">0</dd></div>
@@ -336,6 +414,8 @@
   var scoreEl = document.getElementById("score");
   var linesEl = document.getElementById("lines");
   var levelEl = document.getElementById("level");
+
+  var narrow = window.matchMedia("(max-width:640px)");
 
   var S = null;
   var bag = [];
@@ -570,7 +650,7 @@
     if(S.mode === "playing"){
       S.mode = "paused";
       ovTitle.textContent = "일시정지";
-      ovBody.textContent = "P 키 또는 계속하기로 이어서 하세요";
+      ovBody.textContent = "계속하기를 누르면 이어서 진행됩니다";
       ovFinal.hidden = true;
       startBtn.textContent = "계속하기";
       overlay.hidden = false;
@@ -661,15 +741,19 @@
     }
   }
 
-  function drawMini(ctx, cv, types, cw, ch){
+  function drawMini(ctx, cv, types, cw, ch, horiz){
     sizeCanvas(cv, ctx, cw, ch);
     ctx.fillStyle = "#101426";
     ctx.fillRect(0, 0, cw, ch);
     if(!types.length) return;
 
-    var slot = ch / types.length, s = 15;
+    var count = types.length;
+    var slotW = horiz ? cw / count : cw;
+    var slotH = horiz ? ch : ch / count;
+    var s = Math.max(7, Math.min(15, Math.floor(Math.min(slotW, slotH) / 4.4)));
+
     var i, t, m, n, r, c, minC, maxC, minR, maxR, ox, oy;
-    for(i = 0; i < types.length; i++){
+    for(i = 0; i < count; i++){
       t = types[i];
       if(!t) continue;
       m = PIECES[t].m; n = m.length;
@@ -683,8 +767,8 @@
           if(r > maxR) maxR = r;
         }
       }
-      ox = (cw - (maxC - minC + 1) * s) / 2 - minC * s;
-      oy = i * slot + (slot - (maxR - minR + 1) * s) / 2 - minR * s;
+      ox = (horiz ? i * slotW : 0) + (slotW - (maxC - minC + 1) * s) / 2 - minC * s;
+      oy = (horiz ? 0 : i * slotH) + (slotH - (maxR - minR + 1) * s) / 2 - minR * s;
       for(r = 0; r < n; r++){
         for(c = 0; c < n; c++){
           if(m[r][c]) block(ctx, ox + c * s, oy + r * s, s, PIECES[t].color);
@@ -696,8 +780,9 @@
   function draw(){
     drawBoard();
     if(!S) return;
-    drawMini(nctx, nextCv, S.queue.slice(0, 3), 140, 210);
-    drawMini(hctx, holdCv, S.hold ? [S.hold] : [], 140, 80);
+    var small = narrow.matches;
+    drawMini(nctx, nextCv, S.queue.slice(0, 3), small ? 192 : 140, small ? 54 : 210, small);
+    drawMini(hctx, holdCv, S.hold ? [S.hold] : [], small ? 64 : 140, small ? 54 : 80, small);
   }
 
   /* ---------- loop ---------- */
@@ -766,51 +851,69 @@
       if(fn) fn();
       draw();
     });
+    btn.addEventListener("contextmenu", function(e){ e.preventDefault(); });
   });
+
+  /* 보드 위 스와이프: 좌우 = 이동, 아래 = 소프트 드롭, 짧게 터치 = 회전, 빠르게 아래로 = 하드 드롭 */
+  (function(){
+    var active = false, sx = 0, sy = 0, st = 0, moved = false, cell = 24, softs = 0;
+
+    boardCv.addEventListener("pointerdown", function(e){
+      if(!playable()) return;
+      active = true; moved = false; softs = 0;
+      sx = e.clientX; sy = e.clientY; st = Date.now();
+      cell = boardCv.getBoundingClientRect().width / COLS;
+      try{ boardCv.setPointerCapture(e.pointerId); }catch(err){}
+    });
+
+    boardCv.addEventListener("pointermove", function(e){
+      if(!active || !playable()) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if(Math.abs(dx) >= cell && Math.abs(dx) > Math.abs(dy)){
+        move(dx > 0 ? 1 : -1);
+        sx += dx > 0 ? cell : -cell;
+        moved = true;
+        draw();
+      } else if(dy >= cell && Math.abs(dy) > Math.abs(dx)){
+        softDrop();
+        sy += cell;
+        softs++;
+        moved = true;
+        draw();
+      }
+    });
+
+    boardCv.addEventListener("pointerup", function(e){
+      if(!active) return;
+      active = false;
+      if(!playable()) return;
+      var dt = Date.now() - st, dx = e.clientX - sx, dy = e.clientY - sy;
+      if(!moved && dt < 250 && Math.abs(dx) < 12 && Math.abs(dy) < 12){
+        turn(1);
+      } else if(dt < 300 && softs > 0 && dy > cell){
+        hardDrop();
+      }
+      draw();
+    });
+
+    boardCv.addEventListener("pointercancel", function(){ active = false; });
+  })();
 
   startBtn.addEventListener("click", start);
   pauseBtn.addEventListener("click", togglePause);
   resetBtn.addEventListener("click", restart);
+
   window.addEventListener("resize", draw);
-  window.addEventListener("blur", function(){
-    if(S && S.mode === "playing") togglePause();
+  window.addEventListener("orientationchange", function(){ setTimeout(draw, 250); });
+  if(narrow.addEventListener) narrow.addEventListener("change", draw);
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden && S && S.mode === "playing") togglePause();
   });
 
-  /* ---------- boot ---------- */
-
-  function boot(data){
-    newGame();
-    var snap = data && data.snap;
-    if(snap && snap.grid && snap.piece){
-      try{
-        S.grid = snap.grid;
-        S.queue = snap.queue;
-        S.hold = snap.hold;
-        S.score = snap.score;
-        S.lines = snap.lines;
-        S.level = snap.level;
-        S.piece = snap.piece;
-        syncStats();
-        ovTitle.textContent = "일시정지";
-        ovBody.textContent = "이어서 하려면 계속하기를 누르세요";
-        startBtn.textContent = "계속하기";
-      }catch(err){ newGame(); }
-    }
-    draw();
-    requestAnimationFrame(tick);
-  }
-
-  var hot = window.claude && window.claude.hot;
-  if(hot && hot.snapshot){
-    hot.snapshot(function(){
-      if(!S) return {};
-      return { snap:{ grid:S.grid, queue:S.queue, hold:S.hold, score:S.score, lines:S.lines, level:S.level, piece:S.piece } };
-    });
-  }
-  if(hot && hot.ready){
-    hot.ready(boot);
-  } else {
-    boot((hot && hot.data) || {});
-  }
+  newGame();
+  draw();
+  requestAnimationFrame(tick);
 })();
 </script>
+</body>
+</html>
